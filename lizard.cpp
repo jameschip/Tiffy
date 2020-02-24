@@ -60,7 +60,7 @@ std::string parse(std::string &source) {
     tag_t t;
     int search_location = 0;
     std::string replaccement;
-
+    
     do {
         
         t = findTag(search_location, &out);

@@ -30,7 +30,7 @@ is included in the header of tiffy_layout.html and will be copied into the proje
 
 This is a single content file. When you build your project an html file with the same name will be created in the projects root folder. 
 
-### The media filder.
+### The media folder.
 
 This is where you should put all off the images and other media that you need for your pages.
 

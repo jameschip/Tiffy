@@ -45,17 +45,30 @@ int main(int argc, char** argv) {
 
     processOptions( argc, argv, topt );
 
+    std::ofstream file_s; 
+    
     // Do new project setup.
     if ( topt.newProject == true ) {
         std::cout << "Giving a go at creating new project!" << std::endl;
         fs::create_directory( path + CONTENT_DIR );
-        std::ofstream file_s; 
         file_s.open( path + CONTENT_DIR + STYLE_SOURCE );
         file_s.close();
         file_s.open( path + CONTENT_DIR + LAYOUT_SOURCE );
         file_s.close();
         fs::create_directory( path + MEDIA_DIR );
         std::cout << "Done!" << std::endl;
+        return 1;
+    }
+
+    if ( topt.newFile == true ) {
+        const std::string new_file = path + CONTENT_DIR +  "/" + topt.fileName + ".liz";
+        if ( fs::exists( new_file ) ) {
+            std::cout << "File already exists with this name -> " + topt.fileName << std::endl;
+            return 1;
+        }
+        std::cout << "Creating page -> " + topt.fileName << std::endl;
+        file_s.open( new_file );
+        file_s.close();
         return 1;
     }
 

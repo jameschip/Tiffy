@@ -14,6 +14,7 @@
 #define MEDIA_DIR       "/media"
 #define LAYOUT_SOURCE   "/tiffy_layout.html"
 #define STYLE_SOURCE    "/tiffy_layout.css"
+#define INDEX_SOURCE    "/index.liz"
 #define BUILD_FILE      "/.tiffy_build"
 #define CONTENT_TAG     "{{content}}"
 
@@ -53,7 +54,11 @@ int main(int argc, char** argv) {
         fs::create_directory( path + CONTENT_DIR );
         file_s.open( path + CONTENT_DIR + STYLE_SOURCE );
         file_s.close();
+        file_s.open( path + CONTENT_DIR + INDEX_SOURCE );
+        file_s << "WELCOME TO THE RIVER!" << std::endl;
+        file_s.close();
         file_s.open( path + CONTENT_DIR + LAYOUT_SOURCE );
+        file_s << "<!DOCTYPE html>\n\n<head>\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"tiffy_layout.css\">\n</head>\n\n<body>\n\t{{content}}\n</body>" << std::endl;
         file_s.close();
         fs::create_directory( path + MEDIA_DIR );
         std::cout << "Done!" << std::endl;
@@ -210,3 +215,4 @@ void cleanLastBuild( const std::string & path ) {
     }
 
 }
+

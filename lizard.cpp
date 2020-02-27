@@ -16,10 +16,12 @@
 #define TYPE_BQ     12
 #define TYPE_BR     13
 #define TYPE_CB     14
+#define TYPE_UL     15
 
 #define LINK    "li"
 #define BOLD    "bo"
 #define ITAL    "it"
+#define ULIN    "ul"
 #define IMAG    "im"
 #define POIN    "bp"
 #define BLOC    "bq"
@@ -44,6 +46,7 @@ struct tag_t
     int end = NO_POS;
     std::string data;
     std::string text;
+    bool skip = false;
 };
 
 tag_t findTag(int offset, std::string * input);
@@ -60,15 +63,16 @@ std::string parse(std::string &source) {
     tag_t t;
     int search_location = 0;
     std::string replaccement;
-    
+
     do {
         
         t = findTag(search_location, &out);
         
 
-        if (t.type != TYPE_NONE) {
+
+        if (t.type != TYPE_NONE ) {
             
-            if (!in_list && t.type == TYPE_BP) {
+            if (!in_list && t.type == TYPE_BP && t.skip != true) {
                 in_list = true;
                 out.resize(out.length() + 4);
                 out.insert(t.start, "<ul>");
@@ -85,10 +89,16 @@ std::string parse(std::string &source) {
                 list_end = t.end + 2;
             }
 
-            search_location = t.start;
-            replaccement = getReplacementString(t);
-            out.resize(out.length() + replaccement.length() - (t.end - t.start));
-            out.replace(t.start, (t.end - t.start) + 1, replaccement);
+
+            if (t.skip != true ) {
+                search_location = t.start;
+                replaccement = getReplacementString(t);
+                out.resize(out.length() + replaccement.length() - (t.end - t.start));
+                out.replace(t.start, (t.end - t.start) + 1, replaccement);
+            } else {
+                search_location = t.end - 1;
+                out.erase(t.start - 1, 1);
+            }
 
             
         }
@@ -133,6 +143,9 @@ void findTagStart(std::string &input, std::string::iterator it, tag_t *t) {
     for (; it != input.end(); ++it ) {
         if ( *it == OPEN_B && *(it + 1) == OPEN_B) {
             t->start = it - input.begin();
+            if ( *( it - 1 ) == '\\' ) {
+                t->skip = true;
+            }
             it++;
             return;
         }
@@ -172,6 +185,8 @@ void findTagType(std::string &input, tag_t * t) {
         t->data = input.substr(data_start, (it - input.begin()) - data_start);
     } else if (iden.compare(ITAL) == 0) {
         t->type = TYPE_IT;
+    } else if(iden.compare(ULIN) == 0) {
+        t->type = TYPE_UL;
     } else if (iden.compare(BOLD) == 0) {
         t->type = TYPE_BO;
     } else if (iden.compare(POIN) == 0) {
@@ -214,6 +229,8 @@ std::string getReplacementString(tag_t t) {
             return "<b>" + t.text + "</b>";
         case TYPE_IT:
             return "<i>" + t.text + "</i>";
+        case TYPE_UL:
+            return "<u>" + t.text + "</u>";
         case TYPE_H1:
             return "<h1>" + t.text + "</h1>";
         case TYPE_H2:

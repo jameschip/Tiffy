@@ -68,8 +68,6 @@ std::string parse(std::string &source) {
         
         t = findTag(search_location, &out);
         
-
-
         if (t.type != TYPE_NONE ) {
             
             if (!in_list && t.type == TYPE_BP && t.skip != true) {
@@ -82,24 +80,17 @@ std::string parse(std::string &source) {
             } else if (in_list && t.type != TYPE_BP) {
                 in_list = false;
                 out.resize(out.length() + 5);
-                out.insert(list_end, "<\\ul>");
+                out.insert(list_end, "</ul>");
                 t.start += 5;
                 t.end += 5;
             } else if (in_list && t.type == TYPE_BP) {
                 list_end = t.end + 2;
             }
 
-
-            if (t.skip != true ) {
-                search_location = t.start;
-                replaccement = getReplacementString(t);
-                out.resize(out.length() + replaccement.length() - (t.end - t.start));
-                out.replace(t.start, (t.end - t.start) + 1, replaccement);
-            } else {
-                search_location = t.end - 1;
-                out.erase(t.start - 1, 1);
-            }
-
+            search_location = t.start;
+            replaccement = getReplacementString(t);
+            out.resize(out.length() + replaccement.length() - (t.end - t.start));
+            out.replace(t.start, (t.end - t.start) + 1, replaccement);
             
         }
 
@@ -108,12 +99,23 @@ std::string parse(std::string &source) {
     if (in_list) {
         in_list = false;
         out.resize(out.length() + 5);
-        out.insert(list_end, "<\\ul>");
+        out.insert(list_end, "</ul>");
         t.start += 5;
         t.end += 5;
     }
 
-    return out;
+    // remove the tilde from skipped tags.
+    auto temp = out;
+    auto it = temp.begin();
+    for ( ; it!= temp.end(); it++ ) {
+        if ( *it == '~' && *(it + 1) == OPEN_B && *(it + 2) == OPEN_B) {
+            temp.erase(it);
+        } else if ( *it == '~' && *(it - 1) == CLOSE_B && *(it - 2) == CLOSE_B ){
+            temp.erase(it);
+        }
+    }
+
+    return temp;
 }
 
 tag_t findTag(int offset, std::string * input) {
@@ -141,11 +143,8 @@ tag_t findTag(int offset, std::string * input) {
 
 void findTagStart(std::string &input, std::string::iterator it, tag_t *t) {
     for (; it != input.end(); ++it ) {
-        if ( *it == OPEN_B && *(it + 1) == OPEN_B) {
+        if ( *it == OPEN_B && *(it + 1) == OPEN_B && *(it - 1) != '~' ) {
             t->start = it - input.begin();
-            if ( *( it - 1 ) == '\\' ) {
-                t->skip = true;
-            }
             it++;
             return;
         }
@@ -154,7 +153,7 @@ void findTagStart(std::string &input, std::string::iterator it, tag_t *t) {
 
 void findTagEnd(std::string &input, std::string::iterator it, tag_t *t) {
     for (; it != input.end(); ++it ) {
-        if ( *it == CLOSE_B && *(it + 1) == CLOSE_B) {
+        if ( *it == CLOSE_B && *(it + 1) == CLOSE_B && *(it + 2) != '~' ) {
             it++;
             t->end = it - input.begin();
             return;
@@ -224,7 +223,7 @@ std::string getReplacementString(tag_t t) {
         case TYPE_LI:
             return "<a href=\"" + t.data + "\">" + t.text + "</a>";
         case TYPE_IM:
-            return "<img src=\"" + t.data + "\">" + t.text + "</img>";
+            return "<img src=\"" + t.data + "\"></img>";
         case TYPE_BO:
             return "<b>" + t.text + "</b>";
         case TYPE_IT:

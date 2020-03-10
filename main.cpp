@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <chrono> 
 
 #include "lizard.hpp"
 #include "options.hpp"
@@ -48,6 +49,8 @@ int main(int argc, char** argv) {
 
     std::ofstream file_s; 
     
+    auto start = std::chrono::high_resolution_clock::now(); 
+
     // Do new project setup.
     if ( topt.newProject == true ) {
         std::cout << "Giving a go at creating new project!" << std::endl;
@@ -114,6 +117,11 @@ int main(int argc, char** argv) {
 
     b_file.close();
 
+    auto stop = std::chrono::high_resolution_clock::now(); 
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
+  
+    std::cout << "Build time: "
+         << duration.count() << "ms" << std::endl; 
     return 0;
 
 }

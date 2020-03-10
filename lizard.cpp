@@ -1,5 +1,6 @@
 #include <cctype>
 #include <iterator>
+#include <iostream>
 
 #define TYPE_NONE   0
 #define TYPE_LI     1
@@ -62,7 +63,6 @@ std::string parse(std::string &source) {
     std::string out = source;
     tag_t t;
     int search_location = 0;
-    std::string replaccement;
 
     do {
         
@@ -72,14 +72,12 @@ std::string parse(std::string &source) {
             
             if (!in_list && t.type == TYPE_BP && t.skip != true) {
                 in_list = true;
-                out.resize(out.length() + 4);
                 out.insert(t.start, "<ul>");
                 t.start += 4;
                 t.end += 4;
                 list_end = t.end;
             } else if (in_list && t.type != TYPE_BP) {
                 in_list = false;
-                out.resize(out.length() + 5);
                 out.insert(list_end, "</ul>");
                 t.start += 5;
                 t.end += 5;
@@ -88,17 +86,16 @@ std::string parse(std::string &source) {
             }
 
             search_location = t.start;
-            replaccement = getReplacementString(t);
-            out.resize(out.length() + replaccement.length() - (t.end - t.start));
-            out.replace(t.start, (t.end - t.start) + 1, replaccement);
+            out.replace(t.start, (t.end - t.start) + 1 , getReplacementString(t));
             
+        } else {
+            search_location = t.end ;
         }
 
-    } while(t.type != TYPE_NONE);
+    } while(t.end  < out.length() );
 
     if (in_list) {
         in_list = false;
-        out.resize(out.length() + 5);
         out.insert(list_end, "</ul>");
         t.start += 5;
         t.end += 5;

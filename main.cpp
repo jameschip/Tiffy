@@ -9,7 +9,6 @@
 #include <chrono> 
 
 #include "lizard.hpp"
-#include "options.hpp"
 
 #define CONTENT_DIR     "/content"
 #define MEDIA_DIR       "/media"
@@ -17,6 +16,7 @@
 #define STYLE_SOURCE    "/tiffy_layout.css"
 #define INDEX_SOURCE    "/index.liz"
 #define BUILD_FILE      "/.tiffy_build"
+#define DIR_FILE		"/.dir_file"
 #define CONTENT_TAG     "{{content}}"
 
 
@@ -43,42 +43,9 @@ int main(int argc, char** argv) {
 
     const std::string path = fs::current_path();
     
-    tiffy_options topt;
-
-    processOptions( argc, argv, topt );
-
     std::ofstream file_s; 
     
     auto start = std::chrono::high_resolution_clock::now(); 
-
-    // Do new project setup.
-    if ( topt.newProject == true ) {
-        std::cout << "Giving a go at creating new project!" << std::endl;
-        fs::create_directory( path + CONTENT_DIR );
-        file_s.open( path + CONTENT_DIR + STYLE_SOURCE );
-        file_s.close();
-        file_s.open( path + CONTENT_DIR + INDEX_SOURCE );
-        file_s << "WELCOME TO THE RIVER!" << std::endl;
-        file_s.close();
-        file_s.open( path + CONTENT_DIR + LAYOUT_SOURCE );
-        file_s << "<!DOCTYPE html>\n\n<head>\n\t<link rel=\"stylesheet\" type=\"text/css\" href=\"tiffy_layout.css\">\n</head>\n\n<body>\n\t{{content}}\n</body>" << std::endl;
-        file_s.close();
-        fs::create_directory( path + MEDIA_DIR );
-        std::cout << "Done!" << std::endl;
-        return 1;
-    }
-
-    if ( topt.newFile == true ) {
-        const std::string new_file = path + CONTENT_DIR +  "/" + topt.fileName + ".liz";
-        if ( fs::exists( new_file ) ) {
-            std::cout << "File already exists with this name -> " + topt.fileName << std::endl;
-            return 1;
-        }
-        std::cout << "Creating page -> " + topt.fileName << std::endl;
-        file_s.open( new_file );
-        file_s.close();
-        return 1;
-    }
 
     PageParts pp;
     
@@ -99,24 +66,31 @@ int main(int argc, char** argv) {
     }
 
     std::ofstream b_file;
-
+	std::ifstream d_file;
+	
     b_file.open( path + BUILD_FILE ); 
+	d_file.open( path + DIR_FILE );
 
-    for (const auto & entry : fs::directory_iterator(path + CONTENT_DIR )) {
-        
-        std::string infile = entry.path().u8string();
-        
-        if ( hasEnding(infile, ".liz") ) {
-            std::string outfile = getOutputName( infile );
-            b_file << outfile << std::endl;
-            std::string content = parseLizardFile( infile );
-            createOutputFile( path + outfile, pp.top + content + pp.bottom );
-        }
-
-    }
+	std::string line;
+	
+	while ( std::getline( d_file, line ) ) {
+			
+	    for (const auto & entry : fs::directory_iterator(path + CONTENT_DIR + line )) {
+	        
+	        std::string infile = entry.path().u8string();
+	        
+	        if ( hasEnding(infile, ".liz") ) {
+	            std::string outfile = getOutputName( infile );
+	            b_file << outfile << std::endl;
+	            std::string content = parseLizardFile( infile );
+	            createOutputFile( path + outfile, pp.top + content + pp.bottom );
+	        }
+		}
+	}
 
     b_file.close();
-
+	d_file.close();
+	
     auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
   

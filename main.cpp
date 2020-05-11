@@ -6,7 +6,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#include <chrono> 
+#include <chrono>
 
 #include "lizard.hpp"
 
@@ -19,9 +19,7 @@
 #define DIR_FILE		"/.dir_file"
 #define CONTENT_TAG     "{{content}}"
 
-
 namespace fs = std::filesystem;
-
 
 struct PageParts {
     std::string top;
@@ -42,24 +40,15 @@ void cleanLastBuild( const std::string & path );
 int main(int argc, char** argv) {
 
     const std::string path = fs::current_path();
-    
-    std::ofstream file_s; 
-    
-    auto start = std::chrono::high_resolution_clock::now(); 
+
+    std::ofstream file_s;
+    auto start = std::chrono::high_resolution_clock::now();
 
     PageParts pp;
-    
     cleanLastBuild( path );
 
-    if ( fs::exists ( path + STYLE_SOURCE ) ) {
-        fs::remove( path + STYLE_SOURCE );
-    }
-
+	
     fs::copy( path + CONTENT_DIR + STYLE_SOURCE, path + STYLE_SOURCE);
-
-    if  (fs::exists( path + LAYOUT_SOURCE ) ){
-        fs::remove( path + LAYOUT_SOURCE );
-    }
 
     if  ( handleLayoutFile( path + CONTENT_DIR + LAYOUT_SOURCE, pp ) == 1 ) {
         return 1;
@@ -67,18 +56,17 @@ int main(int argc, char** argv) {
 
     std::ofstream b_file;
 	std::ifstream d_file;
-	
-    b_file.open( path + BUILD_FILE ); 
+	b_file.open( path + BUILD_FILE );
 	d_file.open( path + DIR_FILE );
 
 	std::string line;
-	
+
 	while ( std::getline( d_file, line ) ) {
-			
+
 	    for (const auto & entry : fs::directory_iterator(path + CONTENT_DIR + line )) {
-	        
+
 	        std::string infile = entry.path().u8string();
-	        
+
 	        if ( hasEnding(infile, ".liz") ) {
 	            std::string outfile = getOutputName( infile );
 	            b_file << outfile << std::endl;
@@ -90,19 +78,18 @@ int main(int argc, char** argv) {
 
     b_file.close();
 	d_file.close();
-	
-    auto stop = std::chrono::high_resolution_clock::now(); 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start); 
-  
+
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "Build time: "
-         << duration.count() << "ms" << std::endl; 
-    return 0;
+         << duration.count() << "ms" << std::endl;
+         return 0;
 
 }
 
 
 bool hasEnding (std::string const &fullString, std::string const &ending) {
- 
+
     if (fullString.length() >= ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
     } else {
@@ -159,7 +146,6 @@ int handleLayoutFile( const std::string & path, PageParts & pp) {
         std::cout << "Can not find layout file." << std::endl;
         return 1;
     }
-    
     parseLayoutPage(path, pp);
     return 0;
 }
@@ -195,6 +181,9 @@ void cleanLastBuild( const std::string & path ) {
         fs::remove( path + BUILD_FILE );
 
     }
+
+    fs::remove( path + STYLE_SOURCE );
+    fs::remove( path + LAYOUT_SOURCE );
 
 }
 

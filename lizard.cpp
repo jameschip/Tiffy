@@ -57,7 +57,7 @@ void findTagType(std::string &input, tag_t * t);
 std::string getReplacementString(tag_t t);
 
 std::string parse(std::string &source) {
-    
+
     bool in_list = false;
     int list_end = 0;
     std::string out = source;
@@ -65,11 +65,11 @@ std::string parse(std::string &source) {
     int search_location = 0;
 
     do {
-        
+
         t = findTag(search_location, &out);
-        
+
         if (t.type != TYPE_NONE ) {
-            
+
             if (!in_list && t.type == TYPE_BP && t.skip != true) {
                 in_list = true;
                 out.insert(t.start, "<ul>");
@@ -87,7 +87,7 @@ std::string parse(std::string &source) {
 
             search_location = t.start;
             out.replace(t.start, (t.end - t.start) + 1 , getReplacementString(t));
-            
+
         } else {
             search_location = t.end ;
         }
@@ -95,6 +95,7 @@ std::string parse(std::string &source) {
     } while(t.end  < out.length() );
 
     if (in_list) {
+
         in_list = false;
         out.insert(list_end, "</ul>");
         t.start += 5;
@@ -116,11 +117,12 @@ std::string parse(std::string &source) {
 }
 
 tag_t findTag(int offset, std::string * input) {
+
     tag_t tag;
 
     std::string::iterator it = input->begin();
     std::advance(it, offset);
-    
+
     findTagStart(*input, it, &tag);
     if (tag.start == NO_POS) {
         return tag;
@@ -139,6 +141,7 @@ tag_t findTag(int offset, std::string * input) {
 }
 
 void findTagStart(std::string &input, std::string::iterator it, tag_t *t) {
+
     for (; it != input.end(); ++it ) {
         if ( *it == OPEN_B && *(it + 1) == OPEN_B && *(it - 1) != '~' ) {
             t->start = it - input.begin();
@@ -149,6 +152,7 @@ void findTagStart(std::string &input, std::string::iterator it, tag_t *t) {
 }
 
 void findTagEnd(std::string &input, std::string::iterator it, tag_t *t) {
+
     for (; it != input.end(); ++it ) {
         if ( *it == CLOSE_B && *(it + 1) == CLOSE_B && *(it + 2) != '~' ) {
             it++;
@@ -159,10 +163,10 @@ void findTagEnd(std::string &input, std::string::iterator it, tag_t *t) {
 }
 
 void findTagType(std::string &input, tag_t * t) {
-    
+
     auto it = input.begin();
     while (isspace(*it)) it++;
-    
+
     int ident_start = it - input.begin();
     while (!isspace(*it)) it++;
     auto iden = input.substr(ident_start, (it - input.begin()) - ident_start);
@@ -213,7 +217,7 @@ void findTagType(std::string &input, tag_t * t) {
 
     while (isspace(*it)) it++;
     t->text = input.substr(it - input.begin(), input.length() - (it - input.begin()));
-} 
+}
 
 std::string getReplacementString(tag_t t) {
     switch (t.type) {

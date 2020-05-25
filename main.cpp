@@ -45,9 +45,14 @@ int main(int argc, char** argv) {
     auto start = std::chrono::high_resolution_clock::now();
 
     PageParts pp;
+
+	if (!fs::exists( path + CONTENT_DIR + STYLE_SOURCE ) || !fs::exists( path + CONTENT_DIR + STYLE_SOURCE ) ) {
+		std::cout << "Can not find content path, build failed." << std::endl;
+		return 0;
+	}
+
     cleanLastBuild( path );
 
-	
     fs::copy( path + CONTENT_DIR + STYLE_SOURCE, path + STYLE_SOURCE);
 
     if  ( handleLayoutFile( path + CONTENT_DIR + LAYOUT_SOURCE, pp ) == 1 ) {

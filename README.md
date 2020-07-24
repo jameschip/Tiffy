@@ -5,10 +5,6 @@ files you create.
 
 ## Tiffy projects
 
-To create a new Tiffy project use the following command:  
-  
-```tiffy -n```  
-
 A Tiffy project can be created in any directory and has a simple file structure.  
   
 * /content                     
@@ -16,6 +12,10 @@ A Tiffy project can be created in any directory and has a simple file structure.
 * /content/tiffy_layout.css
 * /content/index.liz
 * /media
+* /.tiffy_build
+* /.dir_file
+
+An example project can be seen [by looking jameschip.io on github](https://github.com/jameschip/jameschip.github.io)
 
 ### The content directory.
 
@@ -29,6 +29,15 @@ is included in the header of tiffy_layout.html and will be copied into the proje
 ### The index.liz file.
 
 This is a single content file. When you build your project, an html file with the same name will be created in the project's root folder. 
+
+### The .dir_file file
+
+This file contains a list of files relative to /content that you have your websites files in. The top line should be / and everything under that should be /dir_name. One directory per line. This is to allow you to split your content into sensible folders in your project such as /games /software and so on.
+The output files will still be in the root of the project, not in sub folders, this is just for convenience of editing. [Example from jameschip.io](https://github.com/jameschip/jameschip.github.io/blob/master/.dir_file)
+
+### The .tiffy_build file
+
+After a tiffy build this file will have the relative path of all of the output files in it. It's basically a log file, leave this alone to be on the safe side.
 
 ### The media folder.
 

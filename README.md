@@ -3,17 +3,22 @@ Tiffy is a simple minimalist static website generator that creates the flow of i
 Tiffy uses a single html layout file and a single css file to create pages filled with content from the [Lizard](https://github.com/jameschip/Lizard)
 files you create.
 
+## Arguments
+
+* **-n** - New project. Tries to create the nessesary files for a new project.
+* **-v** - Prints the version number. 
+
 ## Tiffy projects
 
 A Tiffy project can be created in any directory and has a simple file structure.  
   
-* /content                     
-* /content/tiffy_loyout.html  
-* /content/tiffy_layout.css
-* /content/index.liz
-* /media
-* /.tiffy_build
-* /.dir_file
+* content/                     
+* content/tiffy_loyout.html  
+* content/tiffy_layout.css
+* content/index.liz
+* media/
+* .tiffy_build
+* .dir_file
 
 An example project can be seen [by looking jameschip.io on github](https://github.com/jameschip/jameschip.github.io)
 

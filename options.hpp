@@ -2,14 +2,9 @@
 #ifndef TIFFY_OPTIONS_HPP
 #define TIFFY_OPTIONS_HPP
 
-#include <string>
+extern bool new_project;
+extern bool print_version;
 
-struct tiffy_options {
-    bool newProject = false;
-    bool newFile = false;
-    std::string fileName;
-};
-
-void processOptions(const int ac, char **av, tiffy_options & out);
+void processOptions( const int ac, char **av );
 
 #endif
